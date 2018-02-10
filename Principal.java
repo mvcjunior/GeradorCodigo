@@ -7,9 +7,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
 import main.com.br.dominios.Definicao;
+import static main.com.br.GeradorValorAtributos.ObterValor;
 
 public class Principal {
 
@@ -18,11 +18,21 @@ public class Principal {
 	static ArrayList<Definicao> definicao = new ArrayList<Definicao>();
 	
 	public static void main(String[] args) throws IOException {
-		if (args.length == 0 || args.length == 1 || args.length > 2) {
+		if (args.length == 0 || args.length == 1) {
 			printTela("Caminho e/ou classe Java não informados. Favor preencher \"classeJava.java\" \"diretório\\completo\"", 1);
 		}
 		String classeJava = args[0];
 		String path = args[1];
+		
+		String definicaoPackage = new String();
+		
+		if (args.length == 3) {
+			definicaoPackage = args[2];
+		} else {
+			String aux = args[1].replace('\\', '#');
+			String[] diretorio = aux.split("#");
+			definicaoPackage = diretorio[diretorio.length-3] + "." + diretorio[diretorio.length-2] + "." + diretorio[diretorio.length-1]; 
+		}
 		
 		if (!classeJava.contains(".java")) {
 			printTela("Classe Java inválida", 1);
@@ -34,7 +44,7 @@ public class Principal {
 		
 		String pathClasseTestJava = path + "\\" + GeraNomeClasseTeste(classeJava);
 		
-		GeraCodigoTeste(pathClasseTestJava, GeraNomeClasseTeste(classeJava), classeJava);
+		GeraCodigoTeste(pathClasseTestJava, GeraNomeClasseTeste(classeJava), classeJava, definicaoPackage);
 		
 	}
 	
@@ -42,7 +52,7 @@ public class Principal {
 		return classeJava.replace(".java", "Test.java");
 	}
 
-	private static void GeraCodigoTeste(String saida, String classeTeste, String classe) throws IOException {
+	private static void GeraCodigoTeste(String saida, String classeTeste, String classe, String definicaoPackage) throws IOException {
 		
 		BufferedWriter wr = null;
 		try {
@@ -55,6 +65,7 @@ public class Principal {
 		String classeLimpa = classe.replace(".java", "");
 		String variavel = "v" + classeLimpa;
 		
+		wr.append("package " + definicaoPackage + ";\n\n");
 		wr.append("public class " + classeTeste.replace(".java", "")+ " {\n\n");
 		wr.append("\t@Test\n");
 		wr.append("\tpublic void " + "valida" + classeLimpa + "() {\n");
@@ -100,39 +111,7 @@ public class Principal {
 		return valor;
 	}
 
-	private static String ObterValor(String tipo) {
-		Random random = new Random();
-		String valor = new String();
-		switch (tipo) {
-			case "String" :
-				valor = "\"ABCDEFGHIJK\"";
-				break;
-			case "char" :
-				valor = String.valueOf(random.nextInt());
-				break;
-			case "int" :
-				valor = String.valueOf(random.nextInt());
-				break;
-			case "long" :
-				valor = String.valueOf(random.nextLong()) + "L";
-				break;
-			case "double" :
-				valor = String.valueOf(random.nextDouble());
-				break;
-			case "float" :
-				valor = String.valueOf(random.nextFloat());
-				break;
-			case "boolean" :
-				valor = String.valueOf(random.nextBoolean());
-				break;
-			default :
-				valor = "\" \"";
-				break;
-		}
-		
-		return valor;
-	}
-
+	
 	private static void LeituraClasse(String pathClasseJava) throws IOException {
 		BufferedReader br = null;
 		
